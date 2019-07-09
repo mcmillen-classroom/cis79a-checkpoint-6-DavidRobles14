@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,8 +20,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity
-{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
 
@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity
 
         mImageView = (ImageView) findViewById(R.id.image_view);
         mCameraButton = (Button) findViewById(R.id.camera_button);
+
+        mCameraButton.setOnClickListener(this);
 
     }
 
@@ -109,5 +111,15 @@ public class MainActivity extends AppCompatActivity
 
         Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoUri.getPath(), bmOptions);
         mImageView.setImageBitmap(bitmap);
+    }
+
+    @Override
+    public void onClick(View view)
+    {
+        if(view.getId() == R.id.camera_button)
+        {
+            dispatchTakePictureIntent();
+        }
+
     }
 }
