@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CameraApp</string>
+    <string name="share_pic">Share picture</string>
 </resources>

@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ImageView mImageView;
     private Button mCameraButton;
+    private Button mShareButton;
+    private Button mEmailButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -37,8 +40,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mImageView = (ImageView) findViewById(R.id.image_view);
         mCameraButton = (Button) findViewById(R.id.camera_button);
+        mShareButton = (Button) findViewById(R.id.share_button);
+        mEmailButton = (Button) findViewById(R.id.email_button);
 
         mCameraButton.setOnClickListener(this);
+        mShareButton.setOnClickListener(this);
+        mEmailButton.setOnClickListener(this);
 
     }
 
@@ -46,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             mImageView.setImageURI(mCurrentPhotoUri);
+            mCameraButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -72,6 +80,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
+
+    private void dispatchSharePicture()
+    {
+        File image = new File(mCurrentPhotoUri.getPath());
+        Uri photoURI = FileProvider.getUriForFile(this, "com.example.android.fileprovider", image);
+
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, photoURI);
+        shareIntent.setType("image/jpeg");
+
+        startActivity(Intent.createChooser(shareIntent, getResources().getText(R.string.share_pic)));
+    }
+
+    private void dispatchEmailPicture()
+    {
+        File image = new File(mCurrentPhotoUri.getPath());
+        Uri photoURI = FileProvider.getUriForFile(this, "com.example.android.fileprovider", image);
+
+        Intent emailIntent = new Intent();
+        emailIntent.setAction(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:"));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Check out my pic!");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Taken using my CameraApp.");
+        emailIntent.putExtra(Intent.EXTRA_STREAM, photoURI);
+
+        if (emailIntent.resolveActivity(getPackageManager()) != null)
+        {
+            startActivity(emailIntent);
+        }
+        else
+        {
+            Toast.makeText(this, "No email app configured.", Toast.LENGTH_LONG).show();
+        }
+    }
+
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -119,6 +163,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(view.getId() == R.id.camera_button)
         {
             dispatchTakePictureIntent();
+        }
+        else if(view.getId() == R.id.share_button)
+        {
+            dispatchSharePicture();
+        }
+        else if(view.getId() == R.id.email_button)
+        {
+            dispatchEmailPicture();
         }
 
     }
